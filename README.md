@@ -26,9 +26,17 @@ Includes authentication (JWT-based), role-based access (Admin/Client), and full 
 - **Deployment Ready:** Configurable via `appsettings.json`
 
 ---
+| Endpoint             | Method | Description       |
+| -------------------- | ------ | ----------------- |
+| `/api/auth/register` | POST   | Register new user |
+| `/api/auth/login`    | POST   | User login        |
+| `/api/items`         | GET    | Get all items     |
+| `/api/items/{id}`    | PUT    | Update item       |
+| `/api/items/{id}`    | DELETE | Delete item       |
+| `/api/contacts`      | GET    | Get all contacts  |
 
-## ⚙️ Setup Instructions
+👨‍💻 Author
 
-1. Clone this repository  
-   ```bash
-   git clone https://github.com/hindochaankit/Basic-Api.git
+Ankit Hindocha
+🎓 BE IT | 💼 .NET Developer
+🌐 LinkedIn : Ankit Hindocha
