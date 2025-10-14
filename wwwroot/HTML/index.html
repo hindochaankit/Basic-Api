@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome Project</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="container" id="loginContainer">
+    <h2>Welcome</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <span class="link" onclick="showRegister()">Sign Up</span>
+</div>
+
+<div class="container" id="registerContainer" style="display:none;">
+    <h2>Register</h2>
+    <input type="text" id="regUsername" placeholder="Username">
+    <input type="password" id="regPassword" placeholder="Password">
+    <button onclick="register()">Register</button>
+    <span class="link" onclick="showLogin()">Already have account? Login</span>
+</div>
+
+<script src="app.js"></script>
+<script>
+function showRegister() {
+    document.getElementById("loginContainer").style.display = "none";
+    document.getElementById("registerContainer").style.display = "block";
+}
+function showLogin() {
+    document.getElementById("registerContainer").style.display = "none";
+    document.getElementById("loginContainer").style.display = "block";
+}
+</script>
+</body>
+</html>
