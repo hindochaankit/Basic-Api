@@ -1,38 +1,193 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Welcome Project</title>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Project Dashboard</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="index.css">
-</head>
-<body>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="index.css" />
+  </head>
 
-<div class="container" id="loginContainer">
-    <h2>Welcome</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <span class="link" onclick="showRegister()">Sign Up</span>
-</div>
+  <body>
+    <div class="container" id="loginContainer">
+      <h2>Welcome</h2>
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="button2" onclick="login()">Login</button>
+      <span class="link" onclick="showRegister()">Sign Up</span>
+    </div>
 
-<div class="container" id="registerContainer" style="display:none;">
-    <h2>Register</h2>
-    <input type="text" id="regUsername" placeholder="Username">
-    <input type="password" id="regPassword" placeholder="Password">
-    <button onclick="register()">Register</button>
-    <span class="link" onclick="showLogin()">Already have account? Login</span>
-</div>
+    <div class="container" id="registerContainer" style="display: none">
+      <h2>Register</h2>
+      <input type="text" id="regUsername" placeholder="Username" />
+      <input type="password" id="regPassword" placeholder="Password" />
+      <button id="button2" onclick="register()">Register</button>
+      <span class="link" onclick="showLogin()"
+        >Already have account? Login</span
+      >
+    </div>
 
-<script src="app.js"></script>
-<script>
-function showRegister() {
-    document.getElementById("loginContainer").style.display = "none";
-    document.getElementById("registerContainer").style.display = "block";
-}
-function showLogin() {
-    document.getElementById("registerContainer").style.display = "none";
-    document.getElementById("loginContainer").style.display = "block";
-}
-</script>
-</body>
+    <div id="dashboardContainer" style="display: none">
+      <header>
+        <h1>Project Dashboard</h1>
+        <p
+          id="welcomeMsg"
+          style="text-align: center; margin-top: 5px; font-weight: bold"
+        ></p>
+      </header>
+
+      <nav class="navbar">
+        <ul>
+          <li>
+            <button class="nav-btn" onclick="showDashboard()">Dashboard</button>
+          </li>
+
+          <li class="dropdown">
+            <button class="nav-btn dropbtn">Items ▾</button>
+            <div class="dropdown-content">
+              <button onclick="showPopup('addItemPopup')">Add Item</button>
+              <button onclick="showPopup('viewItemsPopup')">View Items</button>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <button class="nav-btn dropbtn">Contacts ▾</button>
+            <div class="dropdown-content">
+              <button onclick="showPopup('addContactPopup')">
+                Add Contact
+              </button>
+              <button onclick="showPopup('viewContactsPopup')">
+                View Contacts
+              </button>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <button class="nav-btn dropbtn">Reports ▾</button>
+            <div class="dropdown-content">
+              <button onclick="showReport('daily')">Daily Report</button>
+              <button onclick="showReport('monthly')">Monthly Report</button>
+              <button onclick="showReport('annual')">Annual Report</button>
+            </div>
+          </li>
+
+          <li><button class="nav-btn" onclick="logout()">Logout</button></li>
+        </ul>
+      </nav>
+
+      <section id="aboutApp" style="text-align: center; margin: 20px">
+        <h2>About This App</h2>
+        <p>
+          This is a project management dashboard where you can manage
+          <strong>Items</strong> and <strong>Contacts</strong>. <br />
+          You can add, view, update, or delete records. <br />
+          The app uses <strong>AJAX + jQuery</strong> to interact with a
+          <strong>REST API backend</strong> seamlessly.
+        </p>
+      </section>
+
+      <section id="stats" style="text-align: center; margin: 20px">
+        <h3>Quick Stats</h3>
+        <div
+          style="
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+          "
+        >
+          <div class="stat-card">
+            <h4 id="totalItems">0</h4>
+            <p>Total Items</p>
+          </div>
+          <div class="stat-card">
+            <h4 id="totalContacts">0</h4>
+            <p>Total Contacts</p>
+          </div>
+        </div>
+      </section>
+
+      <div id="addItemPopup" class="popup">
+        <div class="popup-content">
+          <h3>Add Item</h3>
+          <input type="text" id="itemName" placeholder="Item Name" />
+          <input type="text" id="itemDesc" placeholder="Description" />
+          <button id="button" onclick="addItem()">Add</button>
+          <button id="button" onclick="closePopup('addItemPopup')">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div id="viewItemsPopup" class="popup">
+        <div class="popup-content">
+          <h3>Items List</h3>
+          <ul id="itemsList"></ul>
+          <button id="button" onclick="viewItems()">Refresh</button>
+          <button id="button" onclick="closePopup('viewItemsPopup')">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div id="addContactPopup" class="popup">
+        <div class="popup-content">
+          <h3>Add Contact</h3>
+          <input type="text" id="contactName" placeholder="Name" />
+          <input type="text" id="contactPhone" placeholder="Phone" />
+          <button id="button" onclick="addContact()">Add</button>
+          <button id="button" onclick="closePopup('addContactPopup')">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div id="viewContactsPopup" class="popup">
+        <div class="popup-content">
+          <h3>Contacts List</h3>
+          <ul id="contactsList"></ul>
+          <button id="button" onclick="viewContacts()">Refresh</button>
+          <button id="button" onclick="closePopup('viewContactsPopup')">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div id="updateItemPopup" class="popup">
+        <div class="popup-content">
+          <h3>Update Item</h3>
+          <input type="hidden" id="updateItemId" />
+          <input type="text" id="updateItemName" placeholder="Item Name" />
+          <input type="text" id="updateItemDesc" placeholder="Description" />
+          <button id="button" onclick="updateItem()">Update</button>
+          <button id="button" onclick="closePopup('updateItemPopup')">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div id="updateContactPopup" class="popup">
+        <div class="popup-content">
+          <h3>Update Contact</h3>
+          <input type="hidden" id="updateContactId" />
+          <input type="text" id="updateContactName" placeholder="Name" />
+          <input type="text" id="updateContactPhone" placeholder="Phone" />
+          <button id="button" onclick="updateContact()">Update</button>
+          <button id="button" onclick="closePopup('updateContactPopup')">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div id="reportsPopup" class="popup">
+        <div class="popup-content">
+          <h3>Reports</h3>
+          <div id="reportsContent"></div>
+          <button id="button" onclick="closePopup('reportsPopup')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
