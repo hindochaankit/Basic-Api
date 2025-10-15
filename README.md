@@ -14,6 +14,8 @@ Includes authentication (JWT-based), role-based access (Admin/Client), and full 
 ✅ CRUD operations (Add, View, Update, Delete)  
 ✅ jQuery AJAX frontend for smooth UI  
 ✅ MongoDB integration  
+✅ Quick stats to take follow up on current situatuon 
+✅ Find out report to calculate monthly to annually additoin
 
 ---
 
