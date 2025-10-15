@@ -2,6 +2,7 @@ using MongoDB.Driver;
 using ProjectApi.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProjectApi.Services
 {
@@ -49,5 +50,8 @@ namespace ProjectApi.Services
 
         public void Delete(string id) =>
             _contacts.DeleteOne(c => c.Id == id);
+        public int GetContactsAddedToday() => _contacts.Find(c => c.CreatedAt.Date == DateTime.UtcNow.Date).ToList().Count;
+        public int GetContactsAddedThisMonth() => _contacts.Find(c => c.CreatedAt.Month == DateTime.UtcNow.Month && c.CreatedAt.Year == DateTime.UtcNow.Year).ToList().Count;
+        public int GetContactsAddedThisYear() => _contacts.Find(c => c.CreatedAt.Year == DateTime.UtcNow.Year).ToList().Count;
     }
 }
