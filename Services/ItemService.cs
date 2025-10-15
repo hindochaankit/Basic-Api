@@ -1,6 +1,8 @@
 using MongoDB.Driver;
 using ProjectApi.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProjectApi.Services
 {
@@ -45,5 +47,8 @@ namespace ProjectApi.Services
 
         public void Delete(string id) =>
             _items.DeleteOne(i => i.Id == id);
+        public int GetItemsAddedToday() => _items.Find(i => i.CreatedAt.Date == DateTime.UtcNow.Date).ToList().Count;
+        public int GetItemsAddedThisMonth() => _items.Find(i => i.CreatedAt.Month == DateTime.UtcNow.Month && i.CreatedAt.Year == DateTime.UtcNow.Year).ToList().Count;
+        public int GetItemsAddedThisYear() => _items.Find(i => i.CreatedAt.Year == DateTime.UtcNow.Year).ToList().Count;
     }
 }
