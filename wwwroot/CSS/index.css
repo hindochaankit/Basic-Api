@@ -52,6 +52,22 @@ button:hover {
   padding: 10px;
 }
 
+#button3 {
+  width: 60%;
+  padding: 10px;
+  cursor: pointer;
+  background: #025601;
+  color: white;
+  border: 1px solid #01070e;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 8px 0;
+}
+#button3:hover {
+  background: #06c522;
+  color: white;
+}
+
 .navbar {
   background-color: #333;
   overflow: visible;
