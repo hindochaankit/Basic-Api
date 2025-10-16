@@ -4,8 +4,10 @@
     <meta charset="UTF-8" />
     <title>Project Dashboard</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="app.js"></script>
     <link rel="stylesheet" href="index.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
 
   <body>
@@ -43,7 +45,7 @@
           </li>
 
           <li class="dropdown">
-            <button class="nav-btn dropbtn">Items ▾</button>
+            <button class="nav-btn dropbtn">Items</button>
             <div class="dropdown-content">
               <button onclick="showPopup('addItemPopup')">Add Item</button>
               <button onclick="showPopup('viewItemsPopup')">View Items</button>
@@ -51,7 +53,7 @@
           </li>
 
           <li class="dropdown">
-            <button class="nav-btn dropbtn">Contacts ▾</button>
+            <button class="nav-btn dropbtn">Contacts</button>
             <div class="dropdown-content">
               <button onclick="showPopup('addContactPopup')">
                 Add Contact
@@ -63,7 +65,7 @@
           </li>
 
           <li class="dropdown">
-            <button class="nav-btn dropbtn">Reports ▾</button>
+            <button class="nav-btn dropbtn">Reports</button>
             <div class="dropdown-content">
               <button onclick="showReport('daily')">Daily Report</button>
               <button onclick="showReport('monthly')">Monthly Report</button>
@@ -122,6 +124,13 @@
       <div id="viewItemsPopup" class="popup">
         <div class="popup-content">
           <h3>Items List</h3>
+          <input
+            type="text"
+            id="searchItem"
+            placeholder="Search Items..."
+            onkeyup="filterItems()"
+          />
+          <button id="button3" onclick="exportItems()">Export to Excel</button>
           <ul id="itemsList"></ul>
           <button id="button" onclick="viewItems()">Refresh</button>
           <button id="button" onclick="closePopup('viewItemsPopup')">
@@ -145,6 +154,15 @@
       <div id="viewContactsPopup" class="popup">
         <div class="popup-content">
           <h3>Contacts List</h3>
+          <input
+            type="text"
+            id="searchContact"
+            placeholder="Search Contacts..."
+            onkeyup="filterContacts()"
+          />
+          <button id="button3" onclick="exportContacts()">
+            Export to Excel
+          </button>
           <ul id="contactsList"></ul>
           <button id="button" onclick="viewContacts()">Refresh</button>
           <button id="button" onclick="closePopup('viewContactsPopup')">
