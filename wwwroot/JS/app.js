@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:xxxx/api";
+const API_BASE = "http://localhost:5193/api";
 let jwtToken = "";
 
 $(document).ready(() => {
@@ -21,7 +21,7 @@ function apiRequest({ endpoint, method = "GET", data = null, success }) {
       } catch {
         msg += xhr.responseText || xhr.statusText;
       }
-      alert(msg);
+      showToast(msg, "error");
     },
   });
 }
@@ -49,7 +49,7 @@ function showDashboard() {
 function login() {
   const username = $("#username").val().trim();
   const password = $("#password").val().trim();
-  if (!username || !password) return alert("Please fill all fields!");
+  if (!username || !password) return showToast("Please fill all fields!", "error");
 
   apiRequest({
     endpoint: "/auth/login",
@@ -58,6 +58,7 @@ function login() {
     success: (data) => {
       jwtToken = data.token;
       alert("Login successful!");
+      showToast("Login successful!");
       showDashboard();
     },
   });
@@ -66,14 +67,14 @@ function login() {
 function register() {
   const username = $("#regUsername").val().trim();
   const password = $("#regPassword").val().trim();
-  if (!username || !password) return alert("Please fill all fields!");
+  if (!username || !password) return showToast("Please fill all fields!", "error");
 
   apiRequest({
     endpoint: "/auth/register",
     method: "POST",
     data: { username, password },
     success: () => {
-      alert("Registration successful! Please login.");
+      showToast("Registration successful! Please login.");
       showLogin();
     },
   });
@@ -82,6 +83,7 @@ function register() {
 function logout() {
   jwtToken = "";
   alert("Logged out successfully!");
+  showToast("Logged out successfully!");
   $("#dashboardContainer").hide();
   $("#loginContainer").show();
 }
@@ -126,6 +128,77 @@ function showReport(type) {
   });
 }
 
+function filterItems() {
+  const query = $("#searchItem").val().toLowerCase();
+  $("#itemsList li").each(function () {
+    const text = $(this).text().toLowerCase();
+    $(this).toggle(text.includes(query));
+  });
+}
+
+function filterContacts() {
+  const query = $("#searchContact").val().toLowerCase();
+  $("#contactsList li").each(function () {
+    const text = $(this).text().toLowerCase();
+    $(this).toggle(text.includes(query));
+  });
+}
+
+function exportItems() {
+  const data = [];
+  $("#itemsList li").each(function () {
+    const text = $(this).clone().children().remove().end().text().trim();
+    const parts = text.split(" - ");
+    data.push({ Name: parts[0], Description: parts[1] || "" });
+  });
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Items");
+  XLSX.writeFile(wb, "Items.xlsx");
+}
+
+function exportContacts() {
+  const data = [];
+  $("#contactsList li").each(function () {
+    const text = $(this).clone().children().remove().end().text().trim();
+    const parts = text.split(" - ");
+    data.push({ Name: parts[0], Phone: parts[1] || "" });
+  });
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Contacts");
+  XLSX.writeFile(wb, "Contacts.xlsx");
+}
+
+function showToast(message, type = "success") {
+  Swal.fire({
+    toast: true,
+    position: "top-end",
+    icon: type,
+    title: message,
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+  });
+}
+
+showToast("Item added successfully!");
+showToast("Error deleting item!", "error");
+
+function deleteItem(id) {
+  apiRequest({
+    endpoint: `/items/${id}`,
+    method: "DELETE",
+    success: function () {
+      showToast("Item deleted!", "success");
+      viewItems();
+    },
+  });
+}
+
+
 function viewItems() {
   apiRequest({
     endpoint: "/items",
@@ -146,19 +219,19 @@ function viewItems() {
 function addItem() {
   const name = $("#itemName").val().trim();
   const description = $("#itemDesc").val().trim();
-  if (!name || !description) return alert("Please fill all fields!");
+  if (!name || !description) return showToast("Please fill all fields!", "error");
 
   apiRequest({
     endpoint: "/items",
     success: (items) => {
       if (items.some((i) => i.name.toLowerCase() === name.toLowerCase()))
-        return alert("Item already exists!");
+        return showToast("Item already exists!");
       apiRequest({
         endpoint: "/items",
         method: "POST",
         data: { name, description },
         success: () => {
-          alert("Item added successfully!");
+          showToast("Item added successfully!");
           $("#itemName, #itemDesc").val("");
           closePopup("addItemPopup");
           viewItems();
@@ -181,14 +254,14 @@ function updateItem() {
   const id = $("#updateItemId").val();
   const name = $("#updateItemName").val().trim();
   const description = $("#updateItemDesc").val().trim();
-  if (!name || !description) return alert("Please fill all fields!");
+  if (!name || !description) return showToast("Please fill all fields!", "error");
 
   apiRequest({
     endpoint: `/items/${id}`,
     method: "PUT",
     data: { name, description },
     success: () => {
-      alert("Item updated!");
+      showToast("Item updated!");
       closePopup("updateItemPopup");
       viewItems();
     },
@@ -201,7 +274,7 @@ function deleteItem(id) {
     endpoint: `/items/${id}`,
     method: "DELETE",
     success: () => {
-      alert("Item deleted!");
+      showToast("Item deleted!", "success");
       viewItems();
       closePopup("viewItemsPopup");
       updateStats();
@@ -229,20 +302,20 @@ function viewContacts() {
 function addContact() {
   const name = $("#contactName").val().trim();
   const phone = $("#contactPhone").val().trim();
-  if (!name || !phone) return alert("Please fill all fields!");
-  if (!/^[6-9]\d{9}$/.test(phone)) return alert("Invalid phone number!");
+  if (!name || !phone) return showToast("Please fill all fields!", "error");
+  if (!/^[6-9]\d{9}$/.test(phone)) return showToast("Invalid phone number!", "error");
 
   apiRequest({
     endpoint: "/contacts",
     success: (contacts) => {
       if (contacts.some((c) => c.phone === phone))
-        return alert("Contact exists!");
+        return showToast("Contact exists!", "error");
       apiRequest({
         endpoint: "/contacts",
         method: "POST",
         data: { name, phone },
         success: () => {
-          alert("Contact added!");
+          showToast("Contact added!");
           $("#contactName, #contactPhone").val("");
           closePopup("addContactPopup");
           viewContacts();
@@ -259,7 +332,7 @@ function deleteContact(id) {
     endpoint: `/contacts/${id}`,
     method: "DELETE",
     success: () => {
-      alert("Contact deleted!");
+      showToast("Contact deleted!", "success");
       viewContacts();
       closePopup("viewContactsPopup");
       updateStats();
@@ -279,15 +352,15 @@ function updateContact() {
   const id = $("#updateContactId").val();
   const name = $("#updateContactName").val().trim();
   const phone = $("#updateContactPhone").val().trim();
-  if (!name || !phone) return alert("Please fill all fields!");
-  if (!/^[6-9]\d{9}$/.test(phone)) return alert("Invalid phone!");
+  if (!name || !phone) return showToast("Please fill all fields!", "error");
+  if (!/^[6-9]\d{9}$/.test(phone)) return showToast("Invalid phone!", "error");
 
   apiRequest({
     endpoint: `/contacts/${id}`,
     method: "PUT",
     data: { name, phone },
     success: () => {
-      alert("Contact updated!");
+      showToast("Contact updated!");
       closePopup("updateContactPopup");
       viewContacts();
     },
