@@ -80,6 +80,7 @@ button:hover {
   margin: 0;
   padding: 0;
   display: flex;
+  flex-wrap: wrap; /* allow wrapping on small screens */
 }
 
 .navbar li {
@@ -154,6 +155,73 @@ header {
   text-align: center;
 }
 
+.header {
+  background: #0b57a8;
+  color: #fff;
+  padding: 16px 24px;
+}
+.header h1 { margin: 0; }
+.header p { margin: 6px 0 0 0; font-weight: 600; text-align: center; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+}
+
+.sidebar {
+  background: #141826;
+  color: #fff;
+  min-height: calc(100vh - 72px);
+  padding: 18px 14px;
+}
+.sidebar h2 { margin: 0 0 14px 6px; font-size: 20px; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.side-btn {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: #e6e8f0;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+.side-btn:hover { background: #21283b; }
+.submenu { display: none; padding-left: 8px; }
+.submenu.open { display: block; }
+
+.content { padding: 20px 24px; }
+.about { text-align: center; margin: 10px 0 24px 0; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 18px;
+  justify-items: center;
+}
+.stat-card {
+  background: #ffffff;
+  color: #111827;
+  padding: 20px;
+  border-radius: 12px;
+  width: 180px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+}
+.stat-card h4 { margin: 0; font-size: 24px; }
+.stat-card p { margin: 6px 0 0 0; font-size: 14px; color: #6b7280; }
+
+@media (max-width: 920px) {
+  .layout { grid-template-columns: 200px 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { min-height: auto; }
+  .stat-grid { grid-template-columns: 1fr; }
+}
+
 .link {
   color: #007bff;
   cursor: pointer;
@@ -171,12 +239,135 @@ header {
   background: rgba(0, 0, 0, 0.4);
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .popup-content {
-  background: white;
+  background: #ffffff;
   padding: 20px;
+  border-radius: 12px;
+  width: min(90vw, 720px);
+  max-height: 80vh;
+  overflow: auto;
+  text-align: left;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.popup-content h3 {
+  margin: 0 0 12px 0;
+}
+
+/* Full-width inputs inside popups for cleaner layout */
+.popup-content input[type="text"],
+.popup-content input[type="password"],
+.popup-content input[type="number"],
+.popup-content textarea {
+  width: 100%;
+}
+
+/* Lists inside popups */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+#itemsList li,
+#contactsList li {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* keep content flow; buttons controlled below */
+  gap: 12px;
+  flex-wrap: nowrap;
+  background: #f7f8fa;
+  border: 1px solid #e5e7eb;
   border-radius: 10px;
-  width: 300px;
-  text-align: center;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+#tasksList li,
+#expensesList li {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: nowrap;
+  background: #f7f8fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+/* Hide manual line breaks used previously for spacing */
+#itemsList li br,
+#contactsList li br {
+  display: none;
+}
+#tasksList li br,
+#expensesList li br {
+  display: none;
+}
+
+/* Smaller inline action buttons for list rows */
+#itemsList li button,
+#contactsList li button {
+  padding: 6px 10px;
+  margin: 0;
+}
+#tasksList li button,
+#expensesList li button {
+  padding: 6px 10px;
+  margin: 0;
+}
+
+/* Push the first action button (Update) group to the right */
+#itemsList li button:first-of-type,
+#contactsList li button:first-of-type {
+  margin-left: auto;
+}
+#tasksList li button:first-of-type,
+#expensesList li button:first-of-type {
+  margin-left: auto;
+}
+
+.row-title { font-weight: 600; }
+.row-sub { color: #6b7280; }
+
+/* Make primary/secondary action buttons consistent */
+#button {
+  width: auto;
+  padding: 10px 14px;
+}
+
+#button1 {
+  width: auto;
+  padding: 6px 10px;
+}
+
+#button2 {
+  width: 85%;
+  padding: 10px;
+}
+
+#button3 {
+  width: auto;
+  padding: 10px 14px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .stat-card {
+    width: 100px;
+  }
+  .nav-btn {
+    padding: 12px 14px;
+  }
+  .popup-content {
+    width: 92vw;
+  }
+  #itemsList li,
+  #contactsList li {
+    flex-wrap: wrap;
+  }
 }
