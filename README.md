@@ -40,5 +40,5 @@ Includes authentication (JWT-based), role-based access (Admin/Client), and full 
 👨‍💻 Author
 
 Ankit Hindocha
-🎓 BE IT | 💼 .NET Developer
+🎓 BE IT | 💼 Junior Software Engineer
 🌐 LinkedIn : Ankit Hindocha
