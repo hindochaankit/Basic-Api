@@ -1,8 +1,14 @@
-const API_BASE = "http://localhost:5193/api";
+const API_BASE = "http://localhost:xxxx/api";
 let jwtToken = "";
 
 $(document).ready(() => {
   $("#loginContainer").show();
+  // Close any open sidebar submenus when clicking outside the sidebar
+  $(document).on("click", (e) => {
+    if (!$(e.target).closest(".sidebar").length) {
+      $(".submenu.open").removeClass("open");
+    }
+  });
 });
 
 function apiRequest({ endpoint, method = "GET", data = null, success }) {
@@ -89,7 +95,19 @@ function logout() {
 }
 
 function showPopup(id) {
+  // Close any currently visible popups to avoid stacking/overlapping
+  $(".popup").hide();
   $("#" + id).css("display", "flex");
+  // Auto-load data when viewing list popups
+  if (id === "viewItemsPopup") {
+    viewItems();
+  } else if (id === "viewContactsPopup") {
+    viewContacts();
+  } else if (id === "viewTasksPopup") {
+    viewTasks();
+  } else if (id === "viewExpensesPopup") {
+    viewExpenses();
+  }
 }
 function closePopup(id) {
   $("#" + id).hide();
@@ -107,6 +125,20 @@ function updateStats() {
     endpoint: "/contacts",
     success: (contacts) => {
       $("#totalContacts").text(contacts.length);
+    },
+  });
+
+  apiRequest({
+    endpoint: "/tasks",
+    success: (tasks) => {
+      $("#totalTasks").text(tasks.length);
+    },
+  });
+
+  apiRequest({
+    endpoint: "/expenses",
+    success: (expenses) => {
+      $("#totalExpenses").text(expenses.length);
     },
   });
 }
@@ -326,6 +358,204 @@ function addContact() {
   });
 }
 
+// ===== Tasks =====
+function filterTasks() {
+  const query = $("#searchTask").val().toLowerCase();
+  $("#tasksList li").each(function () {
+    const text = $(this).text().toLowerCase();
+    $(this).toggle(text.includes(query));
+  });
+}
+
+function exportTasks() {
+  const data = [];
+  $("#tasksList li").each(function () {
+    const text = $(this).clone().children().remove().end().text().trim();
+    const parts = text.split(" - ");
+    data.push({ Title: parts[0], Description: parts[1] || "" });
+  });
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Tasks");
+  XLSX.writeFile(wb, "Tasks.xlsx");
+}
+
+function viewTasks() {
+  apiRequest({
+    endpoint: "/tasks",
+    success: (tasks) => {
+      const list = $("#tasksList").empty();
+      if (!tasks.length) return list.html("<li>No tasks found</li>");
+      tasks.forEach((t) => {
+        list.append(`<li><span class=\"row-title\">${t.name}</span><span class=\"row-sub\"> - ${t.description || ""}</span>
+          <br>
+          <button id=\"button1\" onclick=\"showUpdateTaskPopup('${t.id}','${t.name}','${t.description || ""}')\">Update</button>
+          <button id=\"button1\" onclick=\"deleteTask('${t.id}')\">Delete</button>
+        </li>`);
+      });
+    },
+  });
+}
+
+function addTask() {
+  const name = $("#taskTitle").val().trim();
+  const description = $("#taskDesc").val().trim();
+  if (!name || !description) return showToast("Please fill all fields!", "error");
+
+  apiRequest({
+    endpoint: "/tasks",
+    method: "POST",
+    data: { name, description },
+    success: () => {
+      showToast("Task added!");
+      $("#taskTitle, #taskDesc").val("");
+      closePopup("addTaskPopup");
+      viewTasks();
+      updateStats();
+    },
+  });
+}
+
+function deleteTask(id) {
+  if (!confirm("Are you sure?")) return;
+  apiRequest({
+    endpoint: `/tasks/${id}`,
+    method: "DELETE",
+    success: () => {
+      showToast("Task deleted!", "success");
+      viewTasks();
+      closePopup("viewTasksPopup");
+      updateStats();
+    },
+  });
+}
+
+function showUpdateTaskPopup(id, name, description) {
+  closePopup("viewTasksPopup");
+  $("#updateTaskId").val(id);
+  $("#updateTaskTitle").val(name);
+  $("#updateTaskDesc").val(description);
+  showPopup("updateTaskPopup");
+}
+
+function updateTask() {
+  const id = $("#updateTaskId").val();
+  const name = $("#updateTaskTitle").val().trim();
+  const description = $("#updateTaskDesc").val().trim();
+  if (!name || !description) return showToast("Please fill all fields!", "error");
+
+  apiRequest({
+    endpoint: `/tasks/${id}`,
+    method: "PUT",
+    data: { name, description },
+    success: () => {
+      showToast("Task updated!");
+      closePopup("updateTaskPopup");
+      viewTasks();
+    },
+  });
+}
+
+// ===== Expenses =====
+function filterExpenses() {
+  const query = $("#searchExpense").val().toLowerCase();
+  $("#expensesList li").each(function () {
+    const text = $(this).text().toLowerCase();
+    $(this).toggle(text.includes(query));
+  });
+}
+
+function exportExpenses() {
+  const data = [];
+  $("#expensesList li").each(function () {
+    const text = $(this).clone().children().remove().end().text().trim();
+    const parts = text.split(" - ");
+    data.push({ Title: parts[0], Amount: parts[1] || "" });
+  });
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+  XLSX.writeFile(wb, "Expenses.xlsx");
+}
+
+function viewExpenses() {
+  apiRequest({
+    endpoint: "/expenses",
+    success: (expenses) => {
+      const list = $("#expensesList").empty();
+      if (!expenses.length) return list.html("<li>No expenses found</li>");
+      expenses.forEach((e) => {
+        list.append(`<li><span class=\"row-title\">${e.name}</span><span class=\"row-sub\"> - ${e.amount}</span>
+          <br>
+          <button id=\"button1\" onclick=\"showUpdateExpensePopup('${e.id}','${e.name}','${e.amount}')\">Update</button>
+          <button id=\"button1\" onclick=\"deleteExpense('${e.id}')\">Delete</button>
+        </li>`);
+      });
+    },
+  });
+}
+
+function addExpense() {
+  const name = $("#expenseTitle").val().trim();
+  const amount = parseFloat($("#expenseAmount").val());
+  if (!name || isNaN(amount)) return showToast("Please fill all fields!", "error");
+
+  apiRequest({
+    endpoint: "/expenses",
+    method: "POST",
+    data: { name, amount },
+    success: () => {
+      showToast("Expense added!");
+      $("#expenseTitle, #expenseAmount").val("");
+      closePopup("addExpensePopup");
+      viewExpenses();
+      updateStats();
+    },
+  });
+}
+
+function deleteExpense(id) {
+  if (!confirm("Are you sure?")) return;
+  apiRequest({
+    endpoint: `/expenses/${id}`,
+    method: "DELETE",
+    success: () => {
+      showToast("Expense deleted!", "success");
+      viewExpenses();
+      closePopup("viewExpensesPopup");
+      updateStats();
+    },
+  });
+}
+
+function showUpdateExpensePopup(id, name, amount) {
+  closePopup("viewExpensesPopup");
+  $("#updateExpenseId").val(id);
+  $("#updateExpenseTitle").val(name);
+  $("#updateExpenseAmount").val(amount);
+  showPopup("updateExpensePopup");
+}
+
+function updateExpense() {
+  const id = $("#updateExpenseId").val();
+  const name = $("#updateExpenseTitle").val().trim();
+  const amount = parseFloat($("#updateExpenseAmount").val());
+  if (!name || isNaN(amount)) return showToast("Please fill all fields!", "error");
+
+  apiRequest({
+    endpoint: `/expenses/${id}`,
+    method: "PUT",
+    data: { name, amount },
+    success: () => {
+      showToast("Expense updated!");
+      closePopup("updateExpensePopup");
+      viewExpenses();
+    },
+  });
+}
+
 function deleteContact(id) {
   if (!confirm("Are you sure?")) return;
   apiRequest({
@@ -365,4 +595,16 @@ function updateContact() {
       viewContacts();
     },
   });
+}
+
+// ---------- Sidebar submenu toggle ----------
+function toggleMenu(menuId) {
+  const el = document.getElementById(menuId);
+  if (!el) return;
+  // Close other open submenus first
+  document.querySelectorAll(".submenu.open").forEach((menu) => {
+    if (menu.id !== menuId) menu.classList.remove("open");
+  });
+  // Toggle the requested submenu
+  el.classList.toggle("open");
 }
